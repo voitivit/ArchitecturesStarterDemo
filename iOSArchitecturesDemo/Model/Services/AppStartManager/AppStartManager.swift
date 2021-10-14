@@ -8,6 +8,7 @@
 
 import UIKit
 
+
 final class AppStartManager {
     
     var window: UIWindow?
@@ -17,10 +18,8 @@ final class AppStartManager {
     }
     
     func start() {
-        let searchVC = SearchBuilder.build()
-        let rootVC = searchVC
-        rootVC.navigationItem.title = "Search via iTunes"
-        
+        let rootVC = SearchBuilder.build()
+        rootVC.navigationItem.title = "Choose search"
         let navVC = self.configuredNavigationController
         navVC.viewControllers = [rootVC]
         

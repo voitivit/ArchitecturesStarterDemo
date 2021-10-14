@@ -8,6 +8,7 @@
 
 import Foundation
 
+
 struct AppCellModel {
     let title: String
     let subtitle: String?
@@ -16,9 +17,14 @@ struct AppCellModel {
 
 final class AppCellModelFactory {
     
-    static func cellModel(from model: ITunesApp) -> AppCellModel {
+    static func cellModelApp(from model: ITunesApp) -> AppCellModel {
         return AppCellModel(title: model.appName,
                             subtitle: model.company,
                             rating: model.averageRating >>- { "\($0)" })
     }
+  static func cellModelSong(from model: ITunesSong) -> AppCellModel {
+      return AppCellModel(title: model.artistName!,
+                          subtitle: model.trackName,
+                          rating: "")
+  }
 }

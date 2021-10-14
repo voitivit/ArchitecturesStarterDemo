@@ -5,7 +5,6 @@
 //  Created by Evgeny Kireev on 01/03/2019.
 //  Copyright © 2019 ekireev. All rights reserved.
 //
-
 import UIKit
 
 final class AppCell: UITableViewCell {

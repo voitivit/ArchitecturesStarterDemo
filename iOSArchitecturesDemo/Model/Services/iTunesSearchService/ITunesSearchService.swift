@@ -49,6 +49,7 @@ final class ITunesSearchService {
                     do {
                         let result = try self.decoder.decode(ITunesSearchResult<ITunesApp>.self, from: data)
                         let apps = result.results
+     //                 print(apps.first?.appDescription)
                         completion?(.success(apps))
                     } catch {
                         print(error)
@@ -92,3 +93,4 @@ final class ITunesSearchService {
         }
     }
 }
+

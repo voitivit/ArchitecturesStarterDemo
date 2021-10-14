@@ -8,6 +8,7 @@
 
 import UIKit
 
+
 final class AppDetailView: UIView {
     
     // MARK: - Subviews

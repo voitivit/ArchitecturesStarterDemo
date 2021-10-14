@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol SearchViewInput: AnyObject {
+protocol SearchAppViewInput: AnyObject {
     var searchResults: [ITunesApp] { get set }
     
     func showError(error: Error)
@@ -19,18 +19,16 @@ protocol SearchViewInput: AnyObject {
 
 protocol SearchViewOutput: AnyObject {
     func viewDidSearch(with query: String)
-    func viewDidSelectApp(app: ITunesApp)
+    func viewDidSelect(app: ITunesApp)
 }
 
-class SearchPresenter {
-    weak var viewInput: (UIViewController & SearchViewInput)?
+class SearchAppPresenter {
+    weak var viewInput: (UIViewController & SearchAppViewInput)?
     private let searchService = ITunesSearchService()
     
-    
-    private func requestApps(with query: String) {
+    private func requestApp(with query: String) {
         self.searchService.getApps(forQuery: query) { [weak self] result in
             guard let self = self else { return }
-            self.viewInput?.throbber(show: false)
             result
                 .withValue { apps in
                     guard !apps.isEmpty else {
@@ -50,15 +48,16 @@ class SearchPresenter {
         let appDetailViewController = AppDetailViewController(app: app)
         viewInput?.navigationController?.pushViewController(appDetailViewController, animated: true)
     }
+    
 }
 
-extension SearchPresenter: SearchViewOutput {
+extension SearchAppPresenter: SearchViewOutput {
     func viewDidSearch(with query: String) {
-        viewInput?.throbber(show: true)
-        requestApps(with: query)
+        viewInput?.throbber(show: false)
+        requestApp(with: query)
     }
     
-    func viewDidSelectApp(app: ITunesApp) {
+    func viewDidSelect(app: ITunesApp) {
         openAppDetails(with: app)
     }
     

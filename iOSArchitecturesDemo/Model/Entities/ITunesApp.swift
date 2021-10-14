@@ -10,6 +10,7 @@ import UIKit
 
 public struct ITunesApp: Codable {
     
+    
     public typealias Bytes = Int
     
     public let appName: String
