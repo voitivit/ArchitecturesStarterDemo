@@ -7,32 +7,33 @@
 //
 
 import UIKit
-final class SearchSongsViewController: UIViewController {
+
+final class SearchSongViewController: UIViewController {
     
     // MARK: - Private Properties
     
-    private let presenter: SearchSongsViewOutput
-    
-    private var searchView: SearchView {
-        return self.view as! SearchView
+    private var searchSongView: SearchSongView {
+        return self.view as! SearchSongView
     }
+    
+    private let presenter: SearchSongViewOutput
     
     private let searchService = ITunesSearchService()
-    
-    var searchResults = [ITunesSong]() {
+    public var searchResults = [ITunesSong]() {
         didSet {
-            searchView.tableView.isHidden = false
-            searchView.tableView.reloadData()
-            searchView.searchBar.resignFirstResponder()
+            searchSongView.tableView.isHidden = false
+            searchSongView.tableView.reloadData()
+            searchSongView.searchBar.resignFirstResponder()
         }
     }
-      
+    
     private struct Constants {
         static let reuseIdentifier = "reuseId"
     }
     
-    init(presenter: SearchSongsViewOutput) {
+    init(presenter: SearchSongViewOutput) {
         self.presenter = presenter
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -44,26 +45,29 @@ final class SearchSongsViewController: UIViewController {
     
     override func loadView() {
         super.loadView()
-        self.view = SearchView()
+        self.view = SearchSongView()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.prefersLargeTitles = true
-        self.searchView.searchBar.delegate = self
-        self.searchView.tableView.register(AppCell.self, forCellReuseIdentifier: Constants.reuseIdentifier)
-        self.searchView.tableView.delegate = self
-        self.searchView.tableView.dataSource = self
+        self.searchSongView.searchBar.delegate = self
+        self.searchSongView.tableView.register(SongCell.self, forCellReuseIdentifier: Constants.reuseIdentifier)
+        self.searchSongView.tableView.delegate = self
+        self.searchSongView.tableView.dataSource = self
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         self.throbber(show: false)
     }
+    
+    // MARK: - Private
+
 }
 
 //MARK: - UITableViewDataSource
-extension SearchSongsViewController: UITableViewDataSource {
+extension SearchSongViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return searchResults.count
@@ -71,31 +75,31 @@ extension SearchSongsViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let dequeuedCell = tableView.dequeueReusableCell(withIdentifier: Constants.reuseIdentifier, for: indexPath)
-        guard let cell = dequeuedCell as? AppCell else {
+        guard let cell = dequeuedCell as? SongCell else {
             return dequeuedCell
         }
         let song = self.searchResults[indexPath.row]
-        let cellModel = AppCellModelFactory.cellModelSong(from: song)
-      cell.configure(with: cellModel)
-   
+        let cellModel = SongCellModelFactory.cellModel(from: song)
+        cell.configure(with: cellModel)
         return cell
     }
 }
 
 //MARK: - UITableViewDelegate
-extension SearchSongsViewController: UITableViewDelegate {
+extension SearchSongViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let song = searchResults[indexPath.row]
         let songDetaillViewController = SongDetailViewController(song: song)
         songDetaillViewController.song = song
-        presenter.viewDidSelect(song: song)
+//        navigationController?.pushViewController(appDetaillViewController, animated: true)
+        presenter.viewDidSelectSong(song: song)
     }
 }
 
 //MARK: - UISearchBarDelegate
-extension SearchSongsViewController: UISearchBarDelegate {
+extension SearchSongViewController: UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let query = searchBar.text else {
@@ -106,11 +110,13 @@ extension SearchSongsViewController: UISearchBarDelegate {
             searchBar.resignFirstResponder()
             return
         }
+//        self.requestApps(with: query)
+        
         presenter.viewDidSearch(with: query)
     }
 }
 
-extension SearchSongsViewController: SearchSongsViewInput {
+extension SearchSongViewController: SearchSongViewInput {
     func throbber(show: Bool) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = show
     }
@@ -123,11 +129,10 @@ extension SearchSongsViewController: SearchSongsViewInput {
     }
     
     func showNoResults() {
-        self.searchView.emptyResultView.isHidden = false
+        self.searchSongView.emptyResultView.isHidden = false
     }
     
     func hideNoResults() {
-        self.searchView.emptyResultView.isHidden = true
+        self.searchSongView.emptyResultView.isHidden = true
     }
 }
-

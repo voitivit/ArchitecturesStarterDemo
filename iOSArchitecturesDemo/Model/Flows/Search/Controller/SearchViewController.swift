@@ -4,37 +4,35 @@
 //
 //  Created by ekireev on 14.02.2018.
 //  Copyright © 2018 ekireev. All rights reserved.
-//
 
 import UIKit
-
 
 final class SearchViewController: UIViewController {
     
     // MARK: - Private Properties
     
-    private let presenter: SearchViewOutput
-    
     private var searchView: SearchView {
-      return self.view as! SearchView
+        return self.view as! SearchView
     }
     
-    private let searchService = ITunesSearchService()
+    private let presenter: SearchViewOutput
     
-    var searchResults = [ITunesApp]() {
+    private let searchService = ITunesSearchService()
+    public var searchResults = [ITunesApp]() {
         didSet {
             searchView.tableView.isHidden = false
             searchView.tableView.reloadData()
             searchView.searchBar.resignFirstResponder()
         }
     }
-      
+    
     private struct Constants {
         static let reuseIdentifier = "reuseId"
     }
     
     init(presenter: SearchViewOutput) {
         self.presenter = presenter
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -62,6 +60,39 @@ final class SearchViewController: UIViewController {
         super.viewWillDisappear(animated)
         self.throbber(show: false)
     }
+    
+    // MARK: - Private
+    
+    
+    
+//    private func requestApps(with query: String) {
+//        self.throbber(show: true)
+//        self.searchResults = []
+//        self.searchView.tableView.reloadData()
+//
+//        self.searchService.getApps(forQuery: query) { [weak self] result in
+//            guard let self = self else { return }
+//            self.throbber(show: false)
+//            result
+//                .withValue { apps in
+//                    guard !apps.isEmpty else {
+//                        self.searchResults = []
+//                        self.showNoResults()
+//                        return
+//                    }
+//                    self.hideNoResults()
+//                    self.searchResults = apps
+//
+//                    self.searchView.tableView.isHidden = false
+//                    self.searchView.tableView.reloadData()
+//
+//                    self.searchView.searchBar.resignFirstResponder()
+//                }
+//                .withError {
+//                    self.showError(error: $0)
+//                }
+//        }
+//    }
 }
 
 //MARK: - UITableViewDataSource
@@ -77,7 +108,7 @@ extension SearchViewController: UITableViewDataSource {
             return dequeuedCell
         }
         let app = self.searchResults[indexPath.row]
-        let cellModel = AppCellModelFactory.cellModelApp(from: app)
+        let cellModel = AppCellModelFactory.cellModel(from: app)
         cell.configure(with: cellModel)
         return cell
     }
@@ -91,8 +122,8 @@ extension SearchViewController: UITableViewDelegate {
         let app = searchResults[indexPath.row]
         let appDetaillViewController = AppDetailViewController(app: app)
         appDetaillViewController.app = app
-        //navigationController?.pushViewController(appDetaillViewController, animated: true)
-        presenter.viewDidSelect(app: app)
+
+        presenter.viewDidSelectApp(app: app)
     }
 }
 
@@ -108,12 +139,13 @@ extension SearchViewController: UISearchBarDelegate {
             searchBar.resignFirstResponder()
             return
         }
-//        self.requestApps(with: query)
+
+        
         presenter.viewDidSearch(with: query)
     }
 }
 
-extension SearchViewController: SearchAppViewInput {
+extension SearchViewController: SearchViewInput {
     func throbber(show: Bool) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = show
     }

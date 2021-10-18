@@ -6,6 +6,8 @@
 //  Copyright © 2021 ekireev. All rights reserved.
 //
 
+
+
 import UIKit
 
 class AppDetailHeaderView: UIView {
@@ -54,8 +56,6 @@ class AppDetailHeaderView: UIView {
         
         return button
     }()
-
-    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -75,7 +75,6 @@ class AppDetailHeaderView: UIView {
         self.addSubview(subTitleLabel)
         self.addSubview(openButton)
         self.addSubview(ratingLabel)
-        //self.addSubview(infoLabel)
         
         NSLayoutConstraint.activate([
             imageView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 12),
@@ -99,9 +98,7 @@ class AppDetailHeaderView: UIView {
             ratingLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 24),
             ratingLabel.leftAnchor.constraint(equalTo: imageView.leftAnchor),
             ratingLabel.widthAnchor.constraint(equalToConstant: 100),
-            ratingLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
-           
-            
+            ratingLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
 }

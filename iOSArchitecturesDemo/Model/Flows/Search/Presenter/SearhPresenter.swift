@@ -6,9 +6,10 @@
 //  Copyright © 2021 ekireev. All rights reserved.
 //
 
+
 import UIKit
 
-protocol SearchAppViewInput: AnyObject {
+protocol SearchViewInput: AnyObject {
     var searchResults: [ITunesApp] { get set }
     
     func showError(error: Error)
@@ -19,16 +20,32 @@ protocol SearchAppViewInput: AnyObject {
 
 protocol SearchViewOutput: AnyObject {
     func viewDidSearch(with query: String)
-    func viewDidSelect(app: ITunesApp)
+    func viewDidSelectApp(app: ITunesApp)
 }
 
-class SearchAppPresenter {
-    weak var viewInput: (UIViewController & SearchAppViewInput)?
+class SearchPresenter {
+    weak var viewInput: (UIViewController & SearchViewInput)?
+    let interactor: SearchInteractorInput
+    let router: SearchRouterInput
     private let searchService = ITunesSearchService()
     
-    private func requestApp(with query: String) {
-        self.searchService.getApps(forQuery: query) { [weak self] result in
+    init(interactor: SearchInteractorInput, router: SearchRouterInput) {
+        self.interactor = interactor
+        self.router = router
+    }
+    
+    private func openAppDetails(with app: ITunesApp) {
+        let appDetailViewController = AppDetailViewController(app: app)
+        viewInput?.navigationController?.pushViewController(appDetailViewController, animated: true)
+    }
+}
+
+extension SearchPresenter: SearchViewOutput {
+    func viewDidSearch(with query: String) {
+        viewInput?.throbber(show: true)
+        interactor.requestApps(with: query) { [weak self] result in
             guard let self = self else { return }
+            self.viewInput?.throbber(show: false)
             result
                 .withValue { apps in
                     guard !apps.isEmpty else {
@@ -44,22 +61,7 @@ class SearchAppPresenter {
         }
     }
     
-    private func openAppDetails(with app: ITunesApp) {
-        let appDetailViewController = AppDetailViewController(app: app)
-        viewInput?.navigationController?.pushViewController(appDetailViewController, animated: true)
-    }
-    
-}
-
-extension SearchAppPresenter: SearchViewOutput {
-    func viewDidSearch(with query: String) {
-        viewInput?.throbber(show: false)
-        requestApp(with: query)
-    }
-    
-    func viewDidSelect(app: ITunesApp) {
+    func viewDidSelectApp(app: ITunesApp) {
         openAppDetails(with: app)
     }
-    
-    
 }
